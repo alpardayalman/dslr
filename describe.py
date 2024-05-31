@@ -2,6 +2,21 @@ import pandas as pd
 import numpy as np
 import sys
 
+def count_data(num):
+    try:
+        num = num.astype('float')
+        num = num[~np.isnan(num)]
+        return len(num)
+    except:
+        return len(num)
+
+def mean_data(num):
+    i = 0
+    for j in num:
+        if np.isnan(j):
+            continue
+        i += j
+    return i/count_data(num)
 
 def my_describe(data):
     """
@@ -11,12 +26,12 @@ def my_describe(data):
     """
     mydata = pd.read_csv(data)
     num = mydata.select_dtypes(include=np.number)
-    print(num.columns)
     mynewdata = pd.DataFrame(columns=num.columns, index=['count', 'mean', 'std', 'min', '25%', '50%', '75%', 'max'])
     for i in num.columns:
-        mynewdata[i] = [num[i].count() ,num[i].mean(), num[i].std(), num[i].min(), num[i].quantile(0.25),num[i].quantile(0.50),num[i].quantile(0.75), num[i].max()]
+        mynewdata[i] = [count_data(num[i]) ,mean_data(num[i]), num[i].std(), num[i].min(), num[i].quantile(0.25),num[i].quantile(0.50),num[i].quantile(0.75), num[i].max()]
     print(mynewdata)
-    # print(mydata.describe())
+    print("------------------------------------\n")
+    print(mydata.describe())
     # print(num.describe())
     return mynewdata
 
