@@ -67,25 +67,23 @@ class LogisticRegressor(RegressionModel):
     def cost(self, X, y):
         """Log-loss function"""
         y_pred = self.predict(X)
-        y_loss = y_pred.copy()
 
-        for i in range(y.shape[0]):
-            if y == 1.:  # Does eq() work with floats?
-                y_loss[i] = 1 - y_loss[i]
-
-        sum = np.log(y_loss).sum()
-        return -(sum / y.shape[0])
+        to_change = y_pred == 1.
+        y_pred[to_change] = 1. - y_pred[to_change]
+        
+        loss_sum = np.log(y_pred).sum(axis=0)
+        
+        return -(loss_sum / y.shape[0])
 
     def cost_gradient(self, X, y):
         """Log-loss function for sigmoid estimator"""
         y_diff = self.predict(X) - y
-        gradient = np.zeros(self.coefs_.shape[0] + 1)
+        y_diff = y_diff.T  # class in row(s), samples in columns
+        
+        gradient_intercept = y_diff.sum(axis=1)        
+        gradient_coefs = y_diff @ X
 
-        gradient[0] = y_diff.sum()
-
-        for j in range(1, gradient.shape[0]):
-            gradient[j] = y_diff @ X[:, j]
-
+        gradient = np.hstack((gradient_intercept, gradient_coefs))
         gradient /= X.shape[0]
 
         return gradient
