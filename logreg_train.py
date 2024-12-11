@@ -1,8 +1,12 @@
 from argparse import ArgumentParser
 import pandas as pd
 import numpy as np
+from sklearn.model_selection import train_test_split
 
 from regression.regressor import OneVsAllRegressor
+
+import warnings
+warnings.simplefilter(action='ignore', category=FutureWarning)
 
 
 def _parse_cmd_arguments():
@@ -53,19 +57,30 @@ def main():
         print(type(e).__name__, e, sep=": ")
         exit(1)
 
+    # Preprocessing
     X = X.replace(np.nan, 0)
     X, _, _ = min_max_normalize(X)
-    
+
+    # Train test split
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=.2)
+
+    # Regression
     reg = OneVsAllRegressor()
-    reg.fit(X, y, alpha=args.alpha, max_itr=args.itrmax)
+    reg.fit(X_train, y_train, alpha=args.alpha, max_itr=args.itrmax)
 
     classes = reg.transform_info["classes"]
     weights = pd.DataFrame(reg.weights, columns=pd.Index(classes))
 
-    print(weights)
+    print("=" * 20)
+    print(weights.head())
+    print("=" * 20)
+    print("Model accuracy", reg.score(X_test, y_test))
 
     name = reg.transform_info["name"]
-    weights.to_csv(name + "_weights.csv")
+    path = name + "_weights.csv"
+    weights.to_csv(path)
+    
+    print("Weights are written into file", "\"" + path + "\"")
 
 
 if __name__ == "__main__":

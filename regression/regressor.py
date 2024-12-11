@@ -2,9 +2,6 @@ from abc import ABC, abstractmethod
 import numpy as np
 import pandas as pd
 
-# Example TO DO:
-# add transformer class in another file
-
 
 class RegressionModel(ABC):
     """Template regression model class"""
@@ -22,6 +19,10 @@ class RegressionModel(ABC):
             raise AssertionError("weights are not trained")
         if self.coefs_.shape[0] != X.shape[1]:
             raise AssertionError("weight dimension is incompatible with input")
+
+    @abstractmethod
+    def score(self, X, y):
+        pass
 
     def fit(self, X, y, **kwargs):
         """Perform regression algorithm"""
@@ -105,13 +106,19 @@ class LogisticRegressor(RegressionModel):
         super().predict(X)
         return sigmoid(self.intercept_ + X @ self.coefs_)
 
-    def predict_class(self, X):
-        indices = X.index
+    def score(self, X, y):
+        """Accuracy score"""
+        pred = self.predict_class(X)
+        correct_sum = (pred == y).sum()
+        n_samples = X.shape[0]
 
+        return correct_sum / n_samples
+
+    def predict_class(self, X):
         y_pred = self.predict(X)
         y_pred = self.inv_transform_output(y_pred)
 
-        y_pred.rename(index=indices, inplace=True)
+        y_pred.index = X.index
 
         return y_pred
 
@@ -155,7 +162,8 @@ class OneVsAllRegressor(LogisticRegressor):
             raise AssertionError("tranformation info is unavailable")
 
         classes = self.transform_info["classes"]
-        df = pd.DataFrame(y_pred, columns=pd.Index(classes))
+        df = pd.DataFrame(y_pred)
+        df.columns = classes
 
         return df.idxmax(axis=1).rename(self.transform_info["name"])
 
