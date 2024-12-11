@@ -39,7 +39,14 @@ class RegressionModel(ABC):
         pass
 
     def gdescent(self, X, y, alpha=0.1, max_itr=1000):
-        raise NotImplementedError
+        self.intercept_ = np.zeros((1, y.shape[1]))
+        self.coefs_ = np.zeros((X.shape[1], y.shape[1]))
+
+        for _ in range(max_itr):
+            gradient = self.cost_gradient(X, y)
+
+            self.coefs_ -= alpha * gradient[1:, :]
+            self.intercept_ -= alpha * gradient[0, :]
 
     def sgdescent(self, X, y, alpha=0.1, max_itr=1000, batch=1):
         raise NotImplementedError
