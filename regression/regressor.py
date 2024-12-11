@@ -20,7 +20,7 @@ class RegressionModel(ABC):
         """
         if self.coefs_ is None or self.intercept_ is None:
             raise AssertionError("weights are not trained")
-        if self.intercept_.shape[0] != X.shape[1]:
+        if self.coefs_.shape[0] != X.shape[1]:
             raise AssertionError("weight dimension is incompatible with input")
 
     def fit(self, X, y, **kwargs):
@@ -58,6 +58,11 @@ class RegressionModel(ABC):
 
         return np.vstack((self.intercept_, self.coefs_))
 
+    @weights.setter
+    def weights(self, weight_array):
+        self.intercept_ = weight_array[0, :]
+        self.coefs_ = weight_array[1:, :]
+
     def __str__(self):
         return str(self.weights)
 
@@ -72,7 +77,7 @@ class LogisticRegressor(RegressionModel):
         self.transform_info = None
 
     def transform_output(self, y: pd.Series) -> np.ndarray:
-        dummies = pd.get_dummies(y, dtype=pd.Float32Dtype)
+        dummies = pd.get_dummies(y, dtype="float")
 
         classes = dummies.columns
         self.transform_info = {'name': y.name, 'classes': classes}
@@ -126,7 +131,7 @@ class LogisticRegressor(RegressionModel):
         y_diff = self.predict(X) - y
         y_diff = y_diff.T  # class in row(s), samples in columns
 
-        gradient_intercept = y_diff.sum(axis=1)
+        gradient_intercept = y_diff.sum(axis=1).reshape(-1, 1)
         gradient_coefs = y_diff @ X
 
         gradient = np.hstack((gradient_intercept, gradient_coefs))
@@ -138,7 +143,7 @@ class LogisticRegressor(RegressionModel):
 class OneVsAllRegressor(LogisticRegressor):
     """One-vs-all logistic regression model"""
     def transform_output(self, y: pd.Series) -> np.ndarray:
-        dummies = pd.get_dummies(y, dtype=pd.Float32Dtype)
+        dummies = pd.get_dummies(y, dtype="float")
 
         classes = dummies.columns
         self.transform_info = {'name': y.name, 'classes': classes}
@@ -166,6 +171,11 @@ class OneVsAllRegressor(LogisticRegressor):
         return pd.DataFrame(y_pred,
                             index=indices,
                             columns=pd.Index(classes))
+
+    def set_weights(self, weight_df, name="class"):
+        self.weights = weight_df.to_numpy()
+        self.transform_info["name"] = name
+        self.transform_info["classes"] = weight_df.columns
 
 
 def sigmoid(z):
