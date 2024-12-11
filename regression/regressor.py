@@ -107,7 +107,7 @@ class LogisticRegressor(RegressionModel):
         """Log-loss function"""
         y_pred = self.predict(X)
 
-        to_change = y_pred == 1.
+        to_change = y == 1.
         y_pred[to_change] = 1. - y_pred[to_change]
 
         loss_sum = np.log(y_pred).sum(axis=0)
