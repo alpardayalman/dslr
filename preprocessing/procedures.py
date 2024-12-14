@@ -41,16 +41,25 @@ def fill_nan_with_trimmed_mean(df, class_col, trim_frac=0.05):
     return df
 
 def fillna_constant_minmax_scale(data: pd.DataFrame,
-                                 train=True,
+                                 constant=0,
+                                 feature_range=(0, 1)):
+    """Replace NA with a constant value and apply min max scaling on data"""
+
+    data = data.select_dtypes(include=['number'])
+    data = data.fillna(constant)
+    data = minmax_scale(data, feature_range)
+    print(data.isna().sum())
+    return data
+
+
+def fillna_trim_minmax_scale(data: pd.DataFrame,
                                  label='Hogwarts House',
                                  constant=0,
                                  feature_range=(0, 1)):
     """Replace NA with a constant value and apply min max scaling on data"""
 
-    if train:
-        data = fill_nan_with_trimmed_mean(data, label)
-    if label in data.columns:
-        data = data.drop(columns=[label])
+    data = fill_nan_with_trimmed_mean(data, label)
+    data = data.drop(columns=[label])
     data = data.select_dtypes(include=['number'])
     data = minmax_scale(data, feature_range)
     print(data.isna().sum())

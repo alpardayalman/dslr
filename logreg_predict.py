@@ -52,7 +52,7 @@ def main():
         exit(1)
 
     # Preprocessing
-    X = fillna_constant_minmax_scale(X, label=args.label, train=False)
+    X = fillna_constant_minmax_scale(X)
 
     if args.probability:
         pred = regressor.predict_tabular(X)
