@@ -21,7 +21,7 @@ def _parse_cmd_arguments():
                         help="name of the label column")
     parser.add_argument('-i', '--index', default=False,
                         help="name of the index column")
-    parser.add_argument('-a', '--alpha', default=0.1,
+    parser.add_argument('-a', '--alpha', default=0.1, type=float,
                         help="learning rate")
     parser.add_argument('--itrmax', default=1000, type=int,
                         help="maximum number of iterations in algorithm")
