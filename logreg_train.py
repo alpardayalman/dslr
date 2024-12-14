@@ -23,7 +23,7 @@ def _parse_cmd_arguments():
                         help="name of the index column")
     parser.add_argument('-a', '--alpha', default=0.1,
                         help="learning rate")
-    parser.add_argument('--itrmax', default=1000,
+    parser.add_argument('--itrmax', default=1000, type=int,
                         help="maximum number of iterations in algorithm")
     parser.add_argument('-m', '--method', default="gradient",
                         choices=["gradient", "sgradient"])
