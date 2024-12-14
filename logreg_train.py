@@ -33,8 +33,9 @@ def _parse_cmd_arguments():
     data = pd.read_csv(args.file_path, index_col=args.index)
 
     y = data[args.label]
-    X = data.drop(columns=[args.label])
-    X = X.select_dtypes(include=['number'])
+    # X = data.drop(columns=[args.label]) I need to remouve this sorry <- preprocessing purposes
+    X = data
+    # X = X.select_dtypes(include=['number'])
 
     return X, y, args
 
@@ -49,7 +50,7 @@ def main():
         exit(1)
 
     # Preprocessing
-    X = fillna_constant_minmax_scale(X)
+    X = fillna_constant_minmax_scale(X, label=args.label)
 
     # Train test split
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=.2)

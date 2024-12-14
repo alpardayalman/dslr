@@ -34,7 +34,6 @@ def _parse_cmd_arguments():
         X = data.drop(columns=[args.label])
     else:
         X = data
-    X = X.select_dtypes(include=['number'])
 
     LogRegressor = OneVsAllRegressor()
     LogRegressor.load_weights(args.weights_path, args.label)
@@ -53,7 +52,7 @@ def main():
         exit(1)
 
     # Preprocessing
-    X = fillna_constant_minmax_scale(X)
+    X = fillna_constant_minmax_scale(X, label=args.label, train=False)
 
     if args.probability:
         pred = regressor.predict_tabular(X)
