@@ -3,7 +3,7 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 
 from regression.regressor import OneVsAllRegressor
-from preprocessing.procedures import fillna_constant_minmax_scale
+from preprocessing.procedures import fillna_trim_minmax_scale
 
 import warnings
 warnings.simplefilter(action='ignore', category=FutureWarning)
@@ -27,14 +27,17 @@ def _parse_cmd_arguments():
                         help="maximum number of iterations in algorithm")
     parser.add_argument('-m', '--method', default="gradient",
                         choices=["gradient", "sgradient"])
+    parser.add_argument('-f', '--FullTrain', action='store_true', 
+                        help="Enable FullTrain mode.")
 
     args = parser.parse_args()
 
     data = pd.read_csv(args.file_path, index_col=args.index)
 
     y = data[args.label]
-    X = data.drop(columns=[args.label])
-    X = X.select_dtypes(include=['number'])
+    # X = data.drop(columns=[args.label]) I need to remouve this sorry <- preprocessing purposes
+    X = data
+    # X = X.select_dtypes(include=['number'])
 
     return X, y, args
 
@@ -49,10 +52,14 @@ def main():
         exit(1)
 
     # Preprocessing
-    X = fillna_constant_minmax_scale(X)
+    X = fillna_trim_minmax_scale(X, label=args.label)
 
     # Train test split
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=.2)
+    if args.FullTrain:
+        X_train = X
+        y_train = y
+    else:
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=.2)
 
     # Regression
     reg = OneVsAllRegressor()
@@ -64,7 +71,9 @@ def main():
     print("=" * 20)
     print(weights.head())
     print("=" * 20)
-    print("Model accuracy", reg.score(X_test, y_test))
+
+    if not args.FullTrain:
+        print("Model accuracy", reg.score(X_test, y_test))
 
     path = "weights.csv"
     weights.to_csv(path)
