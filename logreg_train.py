@@ -1,9 +1,9 @@
 from argparse import ArgumentParser
 import pandas as pd
-import numpy as np
 from sklearn.model_selection import train_test_split
 
 from regression.regressor import OneVsAllRegressor
+from preprocessing.procedures import fillna_constant_minmax_scale
 
 import warnings
 warnings.simplefilter(action='ignore', category=FutureWarning)
@@ -29,7 +29,7 @@ def _parse_cmd_arguments():
                         choices=["gradient", "sgradient"])
 
     args = parser.parse_args()
-    
+
     data = pd.read_csv(args.file_path, index_col=args.index)
 
     y = data[args.label]
@@ -38,15 +38,6 @@ def _parse_cmd_arguments():
 
     return X, y, args
 
-def min_max_normalize(X, feature_range=(0, 1)):
-    """
-        min max normalizer klasik 
-    """
-    X_min = np.min(X, axis=0)
-    X_max = np.max(X, axis=0)
-    X_std = (X - X_min) / (X_max - X_min)
-    X_scaled = X_std * (feature_range[1] - feature_range[0]) + feature_range[0]
-    return X_scaled, X_min, X_max
 
 def main():
     """Perform logistic regression on data from a csv file"""
@@ -58,8 +49,7 @@ def main():
         exit(1)
 
     # Preprocessing
-    X = X.replace(np.nan, 0)
-    X, _, _ = min_max_normalize(X)
+    X = fillna_constant_minmax_scale(X)
 
     # Train test split
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=.2)
@@ -76,10 +66,9 @@ def main():
     print("=" * 20)
     print("Model accuracy", reg.score(X_test, y_test))
 
-    name = reg.transform_info["name"]
-    path = name + "_weights.csv"
+    path = "weights.csv"
     weights.to_csv(path)
-    
+
     print("Weights are written into file", "\"" + path + "\"")
 
 

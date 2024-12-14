@@ -101,8 +101,10 @@ class LogisticRegressor(RegressionModel):
 
         super().fit(X, y, **kwargs)
 
-    def predict(self, X: np.ndarray) -> np.ndarray:
+    def predict(self, X: np.ndarray | pd.DataFrame) -> np.ndarray:
         """Sigmoid estimator function"""
+        if not isinstance(X, np.ndarray):
+            X = X.to_numpy()
         super().predict(X)
         return sigmoid(self.intercept_ + X @ self.coefs_)
 
@@ -118,7 +120,7 @@ class LogisticRegressor(RegressionModel):
         y_pred = self.predict(X)
         y_pred = self.inv_transform_output(y_pred)
 
-        y_pred.index = X.index
+        y_pred = y_pred.set_axis(X.index)
 
         return y_pred
 
@@ -162,8 +164,7 @@ class OneVsAllRegressor(LogisticRegressor):
             raise AssertionError("tranformation info is unavailable")
 
         classes = self.transform_info["classes"]
-        df = pd.DataFrame(y_pred)
-        df.columns = classes
+        df = pd.DataFrame(y_pred, columns=classes)
 
         return df.idxmax(axis=1).rename(self.transform_info["name"])
 
@@ -172,18 +173,18 @@ class OneVsAllRegressor(LogisticRegressor):
         classes = self.transform_info["classes"]
 
         y_pred = self.predict(X)
-        y_pred = self.inv_transform_output(y_pred)
-
-        y_pred.rename(index=indices, inplace=True)
 
         return pd.DataFrame(y_pred,
                             index=indices,
-                            columns=pd.Index(classes))
+                            columns=classes)
 
-    def set_weights(self, weight_df, name="class"):
-        self.weights = weight_df.to_numpy()
-        self.transform_info["name"] = name
-        self.transform_info["classes"] = weight_df.columns
+    def load_weights(self, weights_file, label="class"):
+        """Load weights from a csv file"""
+        df = pd.read_csv(weights_file, index_col=0)
+        self.weights = df.to_numpy()
+        self.transform_info = {}
+        self.transform_info["name"] = label
+        self.transform_info["classes"] = df.columns
 
 
 def sigmoid(z):
