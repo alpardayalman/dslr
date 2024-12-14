@@ -12,7 +12,7 @@ https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png)
     <tr align="center" >
       <td align="center" valign="top" width="20%"><a href="https://github.com/timurci"><img src="https://avatars.githubusercontent.com/u/83092851?v=4" width="100px;" alt="Timur Çakmakoğlu"/><br /><sub><b>Timur Çakmakoğlu</b></sub></a><br /> 
       </td>
-      <td align="center" valign="top" width="20%"><a href="https://github.com/alpardayalman"><img src="https://avatars.githubusercontent.com/u/82611850?v=4" width="100px;" alt="Alp A. Yalman"/><br /><sub><b>Alp A. Yalman</b></sub></a><br />
+      <td align="center" valign="top" width="30%"><a href="https://github.com/alpardayalman"><img src="https://avatars.githubusercontent.com/u/82611850?v=4" width="100px;" alt="Alp A. Yalman"/><br /><sub><b>Alp A. Yalman</b></sub></a><br />
       </td>
     </tr>
   </table>
