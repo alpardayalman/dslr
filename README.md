@@ -35,7 +35,8 @@ You will implement a **linear classification** model, as a continuation of the s
 ear regression : a logistic regression. We also encourage you a lot to create a machine
 learning toolkit while you will move along the branch.
 
-Summarizing:
+### Summarizing:
+
 •You will learn how to read a data set, to visualize it in different ways, to select and
 clean unnecessary information from your data.
 
